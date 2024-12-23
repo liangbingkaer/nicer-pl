@@ -1,0 +1,5 @@
+程序开始：/home/pl/work/python-workspance/nicer-pl
+
+obs = 1050080126
+
+obs = 1050080128
