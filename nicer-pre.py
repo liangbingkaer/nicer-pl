@@ -1,69 +1,126 @@
-# 导入库
-import os
+# -*- coding: utf-8 -*-
+"""
+Created on June 6 2024
+@author: Long Peng
+@web page: https://www.plxray.cn/
+
+nicer数据预处理,注意未质心修正，有时间再加
+use eg:
+"""
+import os,sys,glob
 import shutil
 import time
+import logging
+import subprocess
+from datetime import datetime
 import matplotlib.pyplot as plt
+from astropy.table import Table
 from nicer_fuc import *
 
-# 原始数据存放位置,建立软链接
-folder_path = "/media/pl/EXTERNAL_USB/work/nicer/test/4u1636-536"
-filetag = 'NICERV3,3c50'
-#filetag = 'NICERV5'
+def copy_mkf_orb(input_obs, output_obs, obs, file_tags=['mkf', 'orb']):
+    """
+    解压并复制指定文件到输出目录。
 
-cwd = os.getcwd()
-ln_dir = os.path.join(cwd,'ln')
-# work_dir = os.path.join(cwd,'work')
-work_dir = cwd
+    参数：
+        input_obs (str): 输入目录路径。
+        output_obs (str): 输出目录路径。
+        obs (str): 观测标识符，用于构建文件名。
+        file_tags (list): 文件类型标签列表，默认包括 'mkf' 和 'orb'。
+    """
+    for file_tag in file_tags:
+        mkf_file = os.path.join(input_obs, 'auxil', f'ni{obs}.{file_tag}')
+        mkf_gz_file = os.path.join(input_obs, 'auxil', f'ni{obs}.{file_tag}.gz')
+        
+        if os.path.exists(mkf_file):
+            shutil.copy(mkf_file, output_obs)  
+        elif os.path.exists(mkf_gz_file):
+            cmd = f'gunzip -f -d {mkf_gz_file}'  
+            os.system(cmd) 
+            if os.path.exists(mkf_file):  
+                shutil.copy(mkf_file, output_obs)
+        else:
+            print(f"Warning: Neither {mkf_file} nor {mkf_gz_file} exists.")
 
-create_dir([ln_dir]) 
-create_symlinks(folder_path)
 
-#预处理
-print_log(f'程序开始：{cwd}')
-os.chdir(ln_dir)
-file=os.popen('ls -d ??????????/').readlines()
-for obs in file:
-    obs=obs[0:10]
-    print_log(f'\nobs = {obs}',masks = obs)
-    input_obs = os.path.join(ln_dir,obs)
-    output_obs = os.path.join(work_dir,obs)
-    os.makedirs(output_obs, exist_ok=True)
+def main(): 
+    cwd = os.getcwd()
+    src_name = '4u 1636-536' #aql x-1
+    source_download_path = "/media/pl/EXTERNAL_USB/work/nicer/test/4u1636-536"
+    
+    filetag = 'NICERV3,3c50'
+    ln_dir = os.path.join(cwd,'ln')
+    # 根据原始数据存放位置,建立软链接
+    create_symlinks(source_download_path)
 
-#     cl_name = 'ni'+obs+'_0mpu7_cl.evt'
-#     cl_gz_name = 'ni'+obs+'_0mpu7_cl.evt.gz'
-#     cl_path = os.path.join(output_obs,cl_name)
+    print();print_log(f' NICER DATA REDUCTION PIPELINE '.center(80, '-')); print()
+    print_log(' Author: Long Peng '.center(80, ' '));print()
+    print_log(f' See web page: https://www.plxray.cn/ '.center(80, ' '),masks='https://www.plxray.cn/'); print()
+    print_log(' Script created on June 2024'.center(80, ' '));print()
+    print_log('--'.center(80, '-'));print()
+    time.sleep(3)
 
-# ##可能需要判断.mkf和.mkf.gz
-#     time_start = time.time()
-#     command = f"nicerl2 indir={input_obs} incremental=NO filtcolumns={filetag} clobber=YES cldir={output_obs} "
-#     if not os.path.isfile(cl_path):
-#         run_cmd(command,start_time=time_start,logtotxt = 'yes')
-#         for file_tag in ['mkf','orb']:
-#             mkf_file = os.path.join(input_obs,'auxil',f'ni{obs}.{file_tag}')
-#             mkf_gz_file = os.path.join(input_obs,'auxil',f'ni{obs}.{file_tag}.gz')
-#             if os.path.exists(mkf_file):
-#                 shutil.copy(mkf_file, output_obs)
-#             else:
-#                 cmd = f'gunzip -f -d {mkf_gz_file}'
-#                 os.system(cmd)
-#                 shutil.copy(mkf_file, output_obs)
+    print_log(f'程序开始：当前路径{cwd}\n', log_files='time')
+    print_log(f'运行日期：{datetime.now().strftime("%Y-%m-%d %H:%M")}\n', log_files='time')
+    print_log(f'source:{src_name}',masks=src_name)
+    time.sleep(3)
 
-#     bkg_png = os.path.join(output_obs,f'ni{obs}_bkg.png')
-#     if not os.path.isfile(bkg_png):
-#         from astropy.table import Table
-#         orbfile = glob.glob(output_obs + '/*.orb')
-#         mkffile = glob.glob(output_obs + '/*.mkf*')
-#         print(f'mkffile:{mkffile}')
+    #预处理
+    obs_list = get_obs(ln_dir)
+    for obs in obs_list:
+        print_log(f'\nobs = {obs}',masks = obs,log_files='time')
+        input_obs = os.path.join(ln_dir,obs)
+        output_obs = os.path.join(cwd,obs)
+        # output_obs = os.path.join(work_dir,obs)
+        # os.makedirs(output_obs, exist_ok=True)
 
-#         mktable = Table.read(mkffile[0])
-#         if 'FPM_RATIO_REJ_COUNT' not in mktable.colnames:
-#             print("FPM_RATIO_REJ_COUNT列不存在")
-#         else:
-#             extra_nicerql_args = ['--save','--emin','0.5','--emax','10']
-#             cmd = f'nicerql.py {cl_path} --orb {orbfile[0]} --mkf {mkffile[0]} --save --emin 0.5 --emax 10'
-#             run_cmd(cmd,logtotxt = 'yes')
-#             png_files = glob.glob(f'ni*{obs}*png')
-#             print(png_files)
-#             for i in range(len(png_files)):
-#                 subprocess.run(['mv',png_files[i],output_obs+'/'])
+        cl_name = 'ni'+obs+'_0mpu7_cl.evt'
+        cl_path = os.path.join(output_obs,cl_name)
+        # cl_gz_name = 'ni'+obs+'_0mpu7_cl.evt.gz'
+
+        command = f"nicerl2 indir={input_obs} incremental=NO filtcolumns={filetag} clobber=YES cldir={output_obs} "
+        run_cmd(command ,logtotxt = 'yes',ifok=cl_path)
+        copy_mkf_orb(input_obs, output_obs, obs)
+
+        sci_png = os.path.join(output_obs,f'ni{obs}_bkg.png')
+        orbfile = glob.glob(output_obs + '/*.orb')
+        mkffile = glob.glob(output_obs + '/*.mkf*')
+
+        mktable = Table.read(mkffile[0])
+        if 'FPM_RATIO_REJ_COUNT' not in mktable.colnames:
+            print("FPM_RATIO_REJ_COUNT列不存在,nicerl2 运行不成功，请重新运行")
+        else:
+            #extra_nicerql_args = ['--save','--emin','0.5','--emax','10']
+            cmd = f'nicerql.py {cl_path} --orb {orbfile[0]} --mkf {mkffile[0]} --save --emin 0.5 --emax 10'
+            run_cmd(cmd,logtotxt = 'yes',ifok=sci_png)
+            png_files = glob.glob(f'ni*{obs}*png')
+            for i in range(len(png_files)):
+                subprocess.run(['mv',png_files[i],output_obs+'/'])
+
+        #nicerl3-lc提取光变
+        cmd ,ifok_file= build_nicerl3_lc(obs, 0.5, 10, 1)
+        ifok_path = os.path.join(cwd,obs,ifok_file)
+        run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
+
+        cmd ,ifok_file= build_nicerl3_lc(obs, 12, 15, 1)
+        ifok_path = os.path.join(cwd,obs,ifok_file)
+        run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
+
+        cmd ,ifok_file= build_nicerl3_lc(obs, 0.5, 10, 0.125)
+        ifok_path = os.path.join(cwd,obs,ifok_file)
+        run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
+
+        cmd ,ifok_file= build_nicerl3_spect(obs, 'optmin', '3c50')
+        ifok_path = os.path.join(cwd,obs,ifok_file)
+        run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
+
+        cmd ,ifok_file= build_nicerl3_spect(obs, 'NONE', '3c50')
+        ifok_path = os.path.join(cwd,obs,ifok_file)
+        run_cmd(cmd,logtotxt='yes',ifok=ifok_path) 
+
+if __name__ == "__main__":
+    main()
+
+
+
+
 
