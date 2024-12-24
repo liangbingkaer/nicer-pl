@@ -156,6 +156,7 @@ def main():
                     ax1.plot(times_con,rates_con,'g')
                     ax1.set_xlabel('Time since MJD '+str(round(t_zero+t_cut_zero/24/3600,5))+' [s]')
                     ax1.set_ylabel('rate ')
+                    # ax1.set_title(src_name +':'+ obs)
 
                     axins = inset_axes(ax1, width='30%', height='30%', loc='upper right')
                     axins.plot(ni_times_burst,ni_rates_burst,'b')

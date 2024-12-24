@@ -15,7 +15,6 @@ import numpy as np
 from nicer_fuc import *
 
 cwd = os.getcwd()
-src_name = '4u 1636-536'
 obs_list = get_obs(cwd)
 
 print_my_info()
@@ -32,6 +31,7 @@ for obs in obs_list:
     with fits.open(lc_path) as data:
         times = np.array(data[1].data['TIME'])
         rates = np.array(data[1].data['RATE'])
+        src_name = data[1].header['object']
 
     with fits.open(bkg_path) as data_b:
         ev_file_b = data_b[1].data
@@ -47,7 +47,7 @@ for obs in obs_list:
         pass
 
     ax1.plot(times ,rates)
-    ax1.set_title(src_name+':'+obs)
+    ax1.set_title(src_name +':'+ obs)
     ax1.set_xlabel("Time (s)")
     ax1.set_ylabel("Counts/s")
     ax1.set_xlim(0,1.1*max(times))

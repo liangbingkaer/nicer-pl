@@ -56,7 +56,6 @@ def main():
     year_path = os.path.join(cwd,str(year_sel))
     os.makedirs(year_path, exist_ok=True)
     obs_list = get_obs(cwd)
-    src_name = '4u 1636-536' #aql x-1
 
     print_my_info()
 

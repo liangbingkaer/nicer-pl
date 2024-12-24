@@ -11,6 +11,9 @@ import os,sys,time
 import math
 import logging
 import subprocess
+from astropy.coordinates import SkyCoord
+import astropy.units as u
+
 cwd = os.getcwd()
 
 def create_symlinks(source_path, ln_folder='ln'):
@@ -86,7 +89,7 @@ def build_nicerl3_lc(obs, pmin, pmax, timebin):
     return cmd,ifok_file
 
 
-def build_nicerl3_spect(obs, grouptype,bkgmodeltype,gtifile = None ):
+def build_nicerl3_spect(obs, grouptype,bkgmodeltype,phafile = None ,gtifile = None ,ifok_file =None, suffix =None ):
     """
     构建 `nicerl3-spect` 命令字符串，并根据输入生成唯一的 `suffix`。
 
@@ -94,24 +97,31 @@ def build_nicerl3_spect(obs, grouptype,bkgmodeltype,gtifile = None ):
         obs (str): 观测标识符。
         grouptype (str): 是否最优并道。默认分组为 grouptype=optmin groupscale=10，这是最佳的 Kaastra 和 Bleeker 分箱，附加要求为每个分组箱 10 个计数。您可以使用 groupscale 参数指定不同的最小计数。
         bkgmodeltype (str):3c50 。“ufa”文件可能被认为是可选的，因为 3c50 背景模型需要它，但 SCORPEON 或太空天气背景模型不需要它。
-    
+        gti,phafile需同时提供 
     返回：
         str: 构造完成的命令字符串。
     """
     #  cmd=f'nicerl3-spect {obs} clobber=YES grouptype=optmin chatter=3 groupscale=10 suffix={suffix}  bkgmodeltype=3c50 '
     # 根据参数生成唯一的 suffix
     bkgmodeltype = '3c50'
-    if gtifile != None:
-        print('待完善')
-        # cmd = f'nicerl3-spect {obs} phafile={phafile} gtifile={gtifile} bkgmodeltype=3c50 clobber=yes'
-    elif grouptype=='optmin':
-        suffix = "optmin"
+    if suffix is None:
+        addname = 'pl'
+
+    if grouptype == 'optmin':
         cmd=f'nicerl3-spect {obs} clobber=YES grouptype={grouptype} chatter=3 groupscale=10 suffix={suffix}  bkgmodeltype={bkgmodeltype} '
-    elif grouptype=='NONE':
-        suffix = "nogrp"
-        cmd=f'nicerl3-spect {obs} clobber=YES grouptype={grouptype} suffix={suffix}  bkgmodeltype={bkgmodeltype} '
+        if suffix is None:
+            suffix = "optmin"
+        if gtifile or phafile:
+            cmd = f'nicerl3-spect {obs} phafile={phafile} gtifile={gtifile} bkgmodeltype=3c50 clobber=yes grouptype={grouptype} chatter=3 groupscale=10' 
+    elif grouptype is None:
+        cmd=f'nicerl3-spect {obs} clobber=YES grouptype={str(grouptype)} suffix={suffix}  bkgmodeltype={bkgmodeltype} '
+        if suffix is None:
+            suffix = "nogrp"
+        if gtifile or phafile:
+            cmd = f'nicerl3-spect {obs} phafile={phafile} gtifile={gtifile} bkgmodeltype=3c50 clobber=yes grouptype={str(grouptype)}' 
         
-    ifok_file = f'ni{obs}mpu7_sr{suffix}.pha'
+    if ifok_file is None:
+        ifok_file = f'ni{obs}mpu7_sr{suffix}.pha'
     return cmd,ifok_file
 
 def print_log(*args, sep=' ', end='\n', file=None, flush=False, log_files=None, masks=None):
@@ -204,7 +214,7 @@ def run_cmd(cmd, ifok=None, dir=None, start_time=None,logtotxt = None):
             print_log(f"Error executing command: {e}")
         finally:
             if ifok:
-                if not ifok.endswith('png'):
+                if not ifok.endswith(('png', 'pha', 'lc')):
                     os.system('touch ' + ifok)
         os.chdir(cwd)
     else:
@@ -301,3 +311,18 @@ def mjd_to_date(mjd) :
 
     #print("MJD{}转换成日期为：{}年{}月{}日".format(mjd,Y, M, D))
     return Y , M , D
+
+    
+def query_object_coordinates(object_name):
+    libraries_installed = True
+    try:
+        from astroquery.simbad import Simbad
+        import concurrent
+        from concurrent.futures import ThreadPoolExecutor
+    except ImportError:
+        libraries_installed = False
+    result_table = Simbad.query_object(object_name)
+    ra = result_table['RA'].data[0]
+    dec = result_table['DEC'].data[0]
+    coord = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
+    return round(coord.ra.deg, 6), round(coord.dec.deg, 6)
