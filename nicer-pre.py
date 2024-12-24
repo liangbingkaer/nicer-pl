@@ -91,11 +91,13 @@ def main():
         else:
             #extra_nicerql_args = ['--save','--emin','0.5','--emax','10']
             cmd = f'nicerql.py {cl_path} --orb {orbfile[0]} --mkf {mkffile[0]} --save --emin 0.5 --emax 10'
-            run_cmd(cmd,logtotxt = 'yes',ifok=sci_png)
-            png_files = glob.glob(f'ni*{obs}*png')
-            for i in range(len(png_files)):
-                subprocess.run(['mv',png_files[i],output_obs+'/'])
-
+            try:
+                run_cmd(cmd,logtotxt = 'yes',ifok=sci_png)
+                png_files = glob.glob(f'ni*{obs}*png')
+                for i in range(len(png_files)):
+                    subprocess.run(['mv',png_files[i],output_obs+'/'])
+            except:
+                print('')
         #nicerl3-lc提取光变
         cmd ,ifok_file= build_nicerl3_lc(obs, 0.5, 10, 1)
         ifok_path = os.path.join(cwd,obs,ifok_file)
