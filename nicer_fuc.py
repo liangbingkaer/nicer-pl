@@ -56,7 +56,7 @@ def write2file(info, file_path):
     with open(file_path, 'a') as file:
         file.write(info)
 
-def build_nicerl3_lc(obs, pmin, pmax, timebin):
+def build_nicerl3_lc(obs, pmin, pmax, timebin,suffix=None):
     """
     构建 `nicerl3-lc` 命令字符串，并根据输入生成唯一的 `suffix`。
 
@@ -72,17 +72,18 @@ def build_nicerl3_lc(obs, pmin, pmax, timebin):
     # 根据参数生成唯一的 suffix
     pi_min = int(100 * pmin)
     pi_max = int(100 * pmax)
-    if str(timebin)=='1':
-        if pi_max==1500:
-            suffix = "bkg_1s"
-        elif pi_max==1000 and pi_min==50:
-            suffix = "1s"
-        else:
-            suffix = f"pi_{pmin}-{pmax}_1s"
-    elif str(timebin)=='0.0001220703125':
-        suffix = "2E-13"
-    elif str(timebin)=='0.125':
-        suffix = "2E-3"
+    if suffix is None:
+        if str(timebin)=='1':
+            if pi_max==1500:
+                suffix = "bkg_1s"
+            elif pi_max==1000 and pi_min==50:
+                suffix = "1s"
+            else:
+                suffix = f"pi_{pmin}-{pmax}_1s"
+        elif str(timebin)=='0.0001220703125':
+            suffix = "2E-13"
+        elif str(timebin)=='0.125':
+            suffix = "2E-3"
 
     ifok_file = f'ni{obs}mpu7_sr{suffix}.lc'
     cmd = f"nicerl3-lc {obs} pirange={pi_min}-{pi_max} timebin={timebin} suffix={suffix} clobber=YES"
