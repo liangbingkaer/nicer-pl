@@ -11,8 +11,10 @@ import os,sys,time
 import math
 import logging
 import subprocess
+from astropy.io import fits
 from astropy.coordinates import SkyCoord
 import astropy.units as u
+from astroquery.simbad import Simbad
 
 cwd = os.getcwd()
 
@@ -40,14 +42,55 @@ def create_symlinks(source_path, ln_folder='ln'):
         except Exception as e:
             logging.error(f"创建软链接失败：{file_name} -> {target_path}，错误：{e}")
 
-def get_obs(work_path):
+def get_obs(work_path,pattern = None):
+    """
+    获取指定文件夹下的pattern型文件名
+    默认为nicer的10字符串
+    """
+    if pattern is None:
+        pattern = "??????????"
     obs_list = []
-    command = f'ls -d {os.path.join(work_path, "??????????/")}'
+    command = f'ls -d {os.path.join(work_path, f"{pattern}/")}'
     file = os.popen(command).readlines()
     for obs in file:
         obs_name = os.path.basename(obs.strip().rstrip('/'))
         obs_list.append(obs_name)
     return obs_list
+
+def fits2dict(filename, par_list, ext):
+    """
+    从FITS文件的指定扩展中读取指定列或头文件键的数据并返回字典。
+
+    参数:
+    filename (str): FITS文件名。
+    par_list (list of str): 要提取的列名或头文件键名列表。
+    ext (int): FITS文件的扩展号,默认将header全部添加。
+        0 -> header, 如 'OBJECT', 'MJDREFI', 'MJDREFF', 'TIMEZERO' 等。
+        1 -> EVENTS, 如 'TIME', 'RATE', 'ERROR' 等。
+        2 -> FPM_SEL。
+        3 -> GTI。
+        4 -> PPS_TREND。
+
+    返回:
+    dict: 包含指定扩展数据的字典。
+    """
+    with fits.open(filename) as hdul:
+        results = {}
+
+        header = hdul[0].header
+        for key in par_list:
+            if key.upper() in header:
+                results[key] = header[key.upper()]
+
+        data = hdul[ext].data
+        if data is not None:
+            for key in par_list:
+                if key in data.names:
+                    results[key] = data[key]
+        else:
+            raise ValueError(f"扩展 {ext} 不包含数据表。")
+
+    return results
 
 def write2file(info, file_path):
     """
@@ -314,16 +357,21 @@ def mjd_to_date(mjd) :
     return Y , M , D
 
     
-def query_object_coordinates(object_name):
-    libraries_installed = True
-    try:
-        from astroquery.simbad import Simbad
-        import concurrent
-        from concurrent.futures import ThreadPoolExecutor
-    except ImportError:
-        libraries_installed = False
-    result_table = Simbad.query_object(object_name)
-    ra = result_table['RA'].data[0]
-    dec = result_table['DEC'].data[0]
-    coord = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
-    return round(coord.ra.deg, 6), round(coord.dec.deg, 6)
+def get_ra_dec(object_name):
+    if '/' in object_name:
+        eventfile = object_name
+        # 从 FITS 文件头读取坐标
+        event = fits.open(eventfile)
+        event_header = event[1].header
+        ra_obj = round(event_header['RA_OBJ'], 6)
+        dec_obj = round(event_header['DEC_OBJ'], 6)
+        return ra_obj, dec_obj
+    else:
+        # 否则作为天体名称查询 SIMBAD
+        result_table = Simbad.query_object(object_name)
+        ra = result_table['RA'].data[0]
+        dec = result_table['DEC'].data[0]
+        coord = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
+        return round(coord.ra.deg, 6), round(coord.dec.deg, 6)
+        
+

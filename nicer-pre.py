@@ -44,7 +44,7 @@ def copy_mkf_orb(input_obs, output_obs, obs, file_tags=['mkf', 'orb']):
 
 def main(): 
     cwd = os.getcwd()
-    #src_name = '4u 1636-536' #aql x-1
+    src_name = '4u 1636-536' #aql x-1
     source_download_path = "/media/pl/EXTERNAL_USB/work/nicer/test/4u1636-536"
     
     filetag = 'NICERV3,3c50'

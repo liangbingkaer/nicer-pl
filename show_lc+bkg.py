@@ -27,16 +27,12 @@ for obs in obs_list:
     bkg_file = f'ni{obs}mpu7_srbkg_1s.lc'
     bkg_path = os.path.join(cwd,obs,bkg_file)  
 
+    par_list = ['TIME', 'RATE', 'ERROR', 'object', 'MJDREFI', 'MJDREFF', 'TIMEZERO']
+    data_dict_lc = fits2dict(lc_path,par_list,1)
+    data_dict_bkg = fits2dict(bkg_path,par_list,1)
 
-    with fits.open(lc_path) as data:
-        times = np.array(data[1].data['TIME'])
-        rates = np.array(data[1].data['RATE'])
-        src_name = data[1].header['object']
-
-    with fits.open(bkg_path) as data_b:
-        ev_file_b = data_b[1].data
-        times_b=np.array(ev_file_b.field('time'))
-        rates_b=np.array(ev_file_b.field('rate'))
+    times,rates,src_name = data_dict_lc['TIME'],data_dict_lc['RATE'],data_dict_lc['object']
+    times_b,rates_b = data_dict_bkg['TIME'],data_dict_bkg['RATE']
 
     try:
         ax1.clear()
@@ -54,7 +50,7 @@ for obs in obs_list:
     ax2 = ax1.twinx()
     ax2.plot(times_b, rates_b,'r')
     ax2.set_ylabel("12-15 keV Counts/s")
-    ax2.set_ylim(0, 1.2*np.max(rates_b))
+    ax2.set_ylim(0, 3*np.max(rates_b))
     ax2.set_xlim(0,1.1*max(times))
     ax2.yaxis.set_visible(True)
 

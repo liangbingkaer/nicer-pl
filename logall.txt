@@ -20194,3 +20194,47 @@ POSTFR keyword not found, using postfr = 0.5
 
 File /home/pl/work/python-workspance/nicer-pl/1050080128/b23_1050080128.pha exists. Skipping command: nicerl3-spect 1050080128 phafile=/home/pl/work/python-workspance/nicer-pl/1050080128/b23_1050080128.pha gtifile=/home/pl/work/python-workspance/nicer-pl/1050080128/b23_1050080128.gti bkgmodeltype=3c50 clobber=yes grouptype=optmin chatter=3 groupscale=10
 
+1050080126
+1050080128
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+1050080126
+1050080128
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
+------------------------ NICER DATA REDUCTION PIPELINE -------------------------
+                               Author: Long Peng                                
+                      See web page: https://www.plxray.cn/                      
+                           Script created on June 2024                          
+--------------------------------------------------------------------------------
