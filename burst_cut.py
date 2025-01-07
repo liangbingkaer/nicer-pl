@@ -6,6 +6,7 @@ Created on June 6 2024
 
 nicer数据观察是否存在暴，获取暴的持续时间
 use eg: python3 burst_cut.py {obs}
+
 """
 
 import os
@@ -35,6 +36,8 @@ def savefilenodb(file,obs):
             burst_file.write(obs + '\n')  
 
 def main(): 
+    ufa = 1  #观察ufa请设置为1
+    maxrate  = 100
     print_my_info()
     cwd = os.getcwd()
     burst_dir = os.path.join(cwd,'burst')
@@ -51,6 +54,9 @@ def main():
             continue
         print_log(f"The obsID is {obs}")
         lc_file = f'ni{obs}mpu7_sr2E-3.lc'
+
+        if ufa == 1 :
+            lc_file = f'{obs}_1s_ufa.lc'
         lc_path = os.path.join(cwd,obs,lc_file)  
 
         with fits.open(lc_path) as data:
@@ -79,7 +85,7 @@ def main():
         ax1.set_ylabel('RATE ')
         plt.show()
 
-        if max(rate) < 100:
+        if max(rate) < maxrate:
             info = {'isburst': 'n', 'dur': [], 'number': 0}
             print("rate < 100 , ignore")
             savefilenodb("lessthan100_obs.txt",obs)

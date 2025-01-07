@@ -99,6 +99,7 @@ for obs in obs_list:
             run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
 
             lc_path = os.path.join(path,f'ni{obs}mpu7_sr2E-3.lc')
+
             lc_data = fits.open(lc_path)
 
             lc = lc_data[1].data

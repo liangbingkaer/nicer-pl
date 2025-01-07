@@ -1,1 +1,0 @@
-/media/pl/EXTERNAL_USB/work/nicer/test/4u1636-536/download.py
