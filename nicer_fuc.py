@@ -435,5 +435,31 @@ def get_ra_dec(object_name):
         dec = result_table['DEC'].data[0]
         coord = SkyCoord(ra, dec, unit=(u.hourangle, u.deg))
         return round(coord.ra.deg, 6), round(coord.dec.deg, 6)
-        
+#后续添加.par文件的读取（以及精确的自行信息）
+    # if parfile[-4:] == '.par': #i.e., if we have a par file:
+    #     posepoch,old_ra,old_dec,PMRA,PMDEC = read_par(parfile) # 考虑PMRA,PMDEC 赤经和赤纬方向的自行
+    #     #get epoch of position, old RA, old DEC, and PMRA/PMDEC proper motion corrections
+
+    #     gti_card = fits.open(eventfile)[2]
+    #     gtis = gti_card.data #aim is to get start/stop times of observation to get time of middle of observation
+    #     MJDREFI = gti_card.header['MJDREFI']
+    #     MJDREFF = gti_card.header['MJDREFF']
+    #     centroid_time = (gtis[-1][1]-gtis[0][0])/2 #not going to take TIMEZERO into account because difference is small? Plus it's a -1 - (-1) thing
+
+    #     centroid_MJD = (MJDREFI+MJDREF) + (TIMEZERO+centroid_time)/86400 #convert centroid MET to MJD
+    #     time_elapsed = centroid_MJD-POSEPOCH #centroid_MJD is later than POSEPOCH!
+
+    #     new_ra = old_ra + (PMRA/np.cos(old_dec*np.pi/180) * 1E-3/3600) * time_elapsed/365.2425 #365.2425 days in a year
+    #     new_dec = old_dec + (PMDEC*1E-3/3600) * time_elapsed/365.2425
+
+    #     with open(logfile,'w') as logtextfile:
+    #         if len(custom_coords) == 2:
+    #             new_ra = custom_coords[0]
+    #             new_dec = custom_coords[1]
+    #         output = subprocess.run(['barycorr',eventfile,'outfile='+outfile,'orbitfiles='+orbit_file,'ra='+str(new_ra),'dec='+str(new_dec),'refframe='+str(refframe),'clobber=YES'],capture_output=True,text=True)
+    #         logtextfile.write(output.stdout)
+    #         logtextfile.write('*------------------------------* \n')
+    #         logtextfile.write(output.stderr)
+    #         logtextfile.close()
+
 
