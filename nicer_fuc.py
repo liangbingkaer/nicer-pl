@@ -62,7 +62,7 @@ def fits2dict(filename, par_list, ext):
     从FITS文件的指定扩展中读取指定列或头文件键的数据并返回字典。
 
     参数:
-    filename (str): FITS文件名。
+    filename (str): FITS文件路径。
     par_list (list of str): 要提取的列名或头文件键名列表。
     ext (int): FITS文件的扩展号,默认将header全部添加。
         0 -> header, 如 'OBJECT', 'MJDREFI', 'MJDREFF', 'TIMEZERO' 等。
@@ -74,6 +74,13 @@ def fits2dict(filename, par_list, ext):
     返回:
     dict: 包含指定扩展数据的字典。
     """
+    if type(filename) != str:
+        raise TypeError("fits_file should be a string!")
+    if type(ext) != int:
+        raise TypeError("ext should be an integer!")
+    if type(par_list) != list and type(par_list) != np.ndarray:
+        raise TypeError("par_list should either be a list or an array!")
+
     with fits.open(filename) as hdul:
         results = {}
 
@@ -98,6 +105,14 @@ def write2file(info, file_path):
     """
     with open(file_path, 'a') as file:
         file.write(info)
+
+def evt2obs(eventfile):
+    """
+    输入evt文件绝对路径，获取对应的obs
+    """
+    event = fits.open(eventfile)
+    obs = event[0].header['OBS_ID']
+    return obs
 
 def build_nicerl3_lc(obs, pmin, pmax, timebin,suffix=None):
     """
