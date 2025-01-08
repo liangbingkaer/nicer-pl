@@ -18,6 +18,9 @@ from astroquery.simbad import Simbad
 
 cwd = os.getcwd()
 
+def makedir(dir): 
+    os.makedirs(dir, exist_ok=True)
+
 def create_symlinks(source_path, ln_folder='ln'):
     """
     创建指向指定文件夹中所有文件的软链接。
