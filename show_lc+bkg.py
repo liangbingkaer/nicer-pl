@@ -56,7 +56,7 @@ for obs in obs_list:
     ax2.yaxis.set_visible(True)
 
     plt.show()
-    spec = input('输入's'可以保存图片,nest obs (y or n)? = ')
+    spec = input('输入s可以保存图片,nest obs (y or n)? = ')
     if spec == 's':
         plt.savefig(parent_folder+'/'+obs+'_bkg.png',dpi=900)
 
