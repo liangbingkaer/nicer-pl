@@ -135,25 +135,24 @@ def main():
                     subprocess.run(['mv',png_files[i],output_obs+'/'])
                 print('')
         #nicerl3-lc提取光变
-        cmd ,ifok_file= build_nicerl3_lc(obs, 0.5, 10, 1)
-        ifok_path = os.path.join(cwd,obs,ifok_file)
+        cmd ,ifok_path= build_nicerl3_lc(obs, 0.5, 10, 1)
         run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
 
-        cmd ,ifok_file= build_nicerl3_lc(obs, 12, 15, 1)
-        ifok_path = os.path.join(cwd,obs,ifok_file)
+        cmd ,ifok_path= build_nicerl3_lc(obs, 12, 15, 1)
         run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
 
-        cmd ,ifok_file= build_nicerl3_lc(obs, 0.5, 10, 0.125)
-        ifok_path = os.path.join(cwd,obs,ifok_file)
+        cmd ,ifok_path= build_nicerl3_lc(obs, 0.5, 10, 0.125)
         run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
 
-        cmd ,ifok_file= build_nicerl3_spect(obs, 'optmin')
-        ifok_path = os.path.join(cwd,obs,ifok_file)
+        cmd ,ifok_path= build_nicerl3_spect(obs)
         run_cmd(cmd,logtotxt='yes',ifok=ifok_path)
 
-        cmd ,ifok_file= build_nicerl3_spect(obs, 'nogrp')
-        ifok_path = os.path.join(cwd,obs,ifok_file)
+        cmd ,ifok_path= build_nicerl3_spect(obs, grouptype = 'nogrp')
         run_cmd(cmd,logtotxt='yes',ifok=ifok_path) 
+
+        # cmd ,ifok_path= build_nicerl3_spect(obs,suffix='day')
+        # run_cmd(cmd,logtotxt='yes',ifok=ifok_path) 
+
 
         extract_ufa(obs, 0.5,10,1)
 
