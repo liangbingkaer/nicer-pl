@@ -22,6 +22,7 @@ print_my_info()
 fig1, ax1 = plt.subplots(figsize=(8, 6))
 plt.ion()  # 启用交互式模式
 for obs in obs_list:
+    parent_folder = os.path.join(cwd,obs)
     lc_file = f'ni{obs}mpu7_sr1s.lc'
     lc_path = os.path.join(cwd,obs,lc_file)  
     bkg_file = f'ni{obs}mpu7_srbkg_1s.lc'
@@ -55,5 +56,7 @@ for obs in obs_list:
     ax2.yaxis.set_visible(True)
 
     plt.show()
-    spec = input('nest obs (y or n)? = ')
+    spec = input('输入's'可以保存图片,nest obs (y or n)? = ')
+    if spec == 's':
+        plt.savefig(parent_folder+'/'+obs+'_bkg.png',dpi=900)
 
