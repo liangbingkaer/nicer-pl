@@ -430,6 +430,7 @@ def get_ra_dec(object_name):
         event_header = event[1].header
         ra_obj = round(event_header['RA_OBJ'], 6)
         dec_obj = round(event_header['DEC_OBJ'], 6)
+        print(f'\n从FITS 文件：{object_name}读取ra,dec\n')
         return ra_obj, dec_obj
     else:
         # 否则作为天体名称查询 SIMBAD
@@ -466,3 +467,15 @@ def get_ra_dec(object_name):
     #         logtextfile.close()
 
 
+def barycorr(eventfile,refframe):
+    if refframe != 'ICRS' and refframe != 'FK5':
+        raise ValueError("refframe should either be ICRS or FK5!")
+    ra,dec = get_ra_dec(eventfile)
+    obs = evt2obs(eventfile)
+    parent_folder = str(pathlib.Path(eventfile).parent)
+
+    outfile = os.path.join(parent_folder,f'bary_ni{obs}_0mpu7_cl.evt')
+    orbit_file = os.path.join(parent_folder,f'ni{obs}.orb')
+
+    cmd = f'barycorr {eventfile} outfile={outfile} orbitfiles={orbit_file} ra={ra} dec={dec} refframe={refframe} clobber=YES'
+    run_cmd(cmd,ifok=outfile ,logtotxt='yes')
