@@ -60,7 +60,7 @@ def main():
     src_name = '4u 1636-536' #aql x-1
     source_download_path = "/media/pl/EXTERNAL_USB/work/nicer/test/4u1636-536"
     
-    filetag = 'NICERV3,3c50'
+    filetag = 'NICERV3,3c50'  #新版本请用NICERV5
     ln_dir = os.path.join(cwd,'ln')
     # 根据原始数据存放位置,建立软链接
     create_symlinks(source_download_path)
@@ -101,10 +101,26 @@ def main():
         orbfile = glob.glob(output_obs + '/*.orb')
         mkffile = glob.glob(output_obs + '/*.mkf*')
 
+        mkf_new = os.path.join(output_obs,f'ni{obs}.mkf')
+        day_cl = os.path.join(output_obs,f'ni{obs}_0mpu7_cl_day.evt')
+        command_day = f"nicerl2 indir={input_obs} incremental=NO filtcolumns={filetag} clobber=YES cldir={output_obs} clfile={day_cl} tasks=SCREEN threshfilter=DAY  mkfile={mkf_new}"
+
+        #在 2023 年 5 月发生光泄漏之后处理数据，在 HEASoft 6.33.2版本后可用
+        try:
+            run_cmd(command_day ,logtotxt = 'yes',ifok='day_cl')
+        except:
+            print(' ')   
+
         mktable = Table.read(mkffile[0])
         if 'FPM_RATIO_REJ_COUNT' not in mktable.colnames:
             print("FPM_RATIO_REJ_COUNT列不存在,nicerl2 运行不成功，请重新运行")
-            run_cmd(command ,logtotxt = 'yes',ifok='1')
+            run_cmd(command ,logtotxt = 'yes',ifok='/pl')
+
+            #在 2023 年 5 月发生光泄漏之后处理数据，在 HEASoft 6.33.2版本后可用
+            try:
+                run_cmd(command_day ,logtotxt = 'yes',ifok='pl')
+            except:
+                print(' ')    
         else:
             #extra_nicerql_args = ['--save','--emin','0.5','--emax','10']
             cmd = f'nicerql.py {cl_path} --orb {orbfile[0]} --mkf {mkffile[0]} --save --emin 0.5 --emax 10'
