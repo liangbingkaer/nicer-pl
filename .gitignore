@@ -1,8 +1,11 @@
 1050080126/
 1050080128/
+1050080126_pipe/
+1050080128_pipe/
 ln/
 2017/
 burst/
 test/
 __pycache__/
 *txt
+cmd.sh
