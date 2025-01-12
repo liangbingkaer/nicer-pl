@@ -486,3 +486,12 @@ def barycorr(eventfile,refframe):
 
     cmd = f'barycorr {eventfile} outfile={outfile} orbitfiles={orbit_file} ra={ra} dec={dec} refframe={refframe} clobber=YES'
     run_cmd(cmd,ifok=outfile ,logtotxt='yes')
+
+def get_exporsure(evt_path):
+        gtis_data = fits.open(evt_path)[3].data
+        gtis_conform = []
+        for i in range(len(gtis_data)):
+            gtis_conform.append([gtis_data[i][0],gtis_data[i][1]]) #conform to the input that Stingray uses
+
+        t_exp = sum([ gtis_data[i]['STOP']-gtis_data[i]['START'] for i in range(len(gtis_data)) ])
+        return t_exp
